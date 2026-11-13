@@ -1,0 +1,1 @@
+import AssistantPanel from '../components/AssistantPanel';export default function AssistantPage(){return <div className="page"><div className="page-title"><span className="eyebrow blue">ÉCHANGE & ORIENTATION</span><h1>L’assistant d’OpenDC</h1><p>Posez vos questions sur OpenDC, sa vision, sa mission et ses projets.</p></div><AssistantPanel fullscreen/></div>}

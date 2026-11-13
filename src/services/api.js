@@ -1,0 +1,5 @@
+import {config} from '../config/env'; import {auth} from '../firebase/client';
+export async function apiRequest(path,{method='GET',body}={}){if(!config.apiEnabled)throw new Error('Le backend OpenDC n’est pas encore activé. Les routes seront disponibles après son déploiement.');const token=auth?.currentUser?await auth.currentUser.getIdToken():null;const res=await fetch(`${config.apiBaseUrl}${path}`,{method,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},...(body?{body:JSON.stringify(body)}:{})});let data={};try{data=await res.json()}catch{}if(!res.ok)throw new Error(data.message||`Erreur serveur (${res.status})`);return data;}
+export const assistantApi={send:(message,history=[])=>apiRequest('/api/assistant/chat',{method:'POST',body:{message,history}})};
+export const profileApi={get:()=>apiRequest('/api/profile'),update:data=>apiRequest('/api/profile',{method:'PATCH',body:data})};
+export const projectsApi={list:()=>apiRequest('/api/projects')}; export const newsApi={list:()=>apiRequest('/api/news')}; export const servicesApi={list:()=>apiRequest('/api/services')};

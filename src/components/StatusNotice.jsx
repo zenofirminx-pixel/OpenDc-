@@ -1,0 +1,1 @@
+import {Info} from 'lucide-react';export default function StatusNotice({children}){return <div className="notice"><Info size={18}/><span>{children}</span></div>}

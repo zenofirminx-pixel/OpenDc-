@@ -1,0 +1,1 @@
+export const validEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); export const strongPassword=v=>v.length>=8; export const cleanText=v=>String(v||'').trim().slice(0,120);
