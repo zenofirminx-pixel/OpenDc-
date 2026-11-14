@@ -7,7 +7,7 @@ export const config = {
   apiEnabled: import.meta.env.OPEN_DC_API_ENABLED === 'true',
 
   firebase: {
-    apiKey: import.meta.env.OPEN_DC_FIREBASE_API_KEY,
+    apiKey: import.meta.env.OPEN_DC_FIREBASE_WEB_CONFIG_KEY,
     authDomain: import.meta.env.OPEN_DC_FIREBASE_AUTH_DOMAIN,
     projectId: import.meta.env.OPEN_DC_FIREBASE_PROJECT_ID,
     storageBucket: import.meta.env.OPEN_DC_FIREBASE_STORAGE_BUCKET,
