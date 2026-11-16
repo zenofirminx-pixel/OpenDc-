@@ -31,8 +31,15 @@ export default function AuthPage() {
         await authApi.login({ email: form.email, password: form.password });
         await refreshSession(); nav('/');
       } else if (mode === 'up') {
-        const result = await authApi.register({ firstName: form.firstName, lastName: form.lastName, birthDate: form.birthDate, gender: form.gender, email: form.email, password: form.password });
-        setNotice(result.message); setMode('in');
+        await authApi.register({ firstName: form.firstName, lastName: form.lastName, birthDate: form.birthDate, gender: form.gender, email: form.email, password: form.password });
+        const sessionUser = await refreshSession();
+
+        if (sessionUser) {
+          nav('/');
+        } else {
+          setNotice('Compte créé, mais la connexion automatique n’a pas pu être confirmée. Connectez-vous avec vos identifiants.');
+          setMode('in');
+        }
       } else if (mode === 'forgot') {
         const result = await authApi.forgotPassword(form.email);
         setNotice(result.message);
