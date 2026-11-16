@@ -1,2 +1,9 @@
-import {collection,getDocs,query,orderBy,limit} from 'firebase/firestore'; import {db} from '../firebase/client';
-export async function readPublicCollection(name){if(!db)return [];try{const q=query(collection(db,name),orderBy('publishedAt','desc'),limit(20));const snap=await getDocs(q);return snap.docs.map(d=>({id:d.id,...d.data()}));}catch(e){console.warn(`Lecture ${name}:`,e);return [];}}
+
+import { apiRequest } from './api';
+const endpoints = { projects: '/api/projects', news: '/api/news', services: '/api/services' };
+export async function readPublicCollection(name) {
+  const endpoint = endpoints[name];
+  if (!endpoint) return [];
+  const data = await apiRequest(endpoint);
+  return data[name] || data.data || [];
+}

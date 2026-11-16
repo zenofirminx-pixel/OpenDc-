@@ -1,2 +1,74 @@
-import {useState} from 'react';import {Link,useNavigate} from 'react-router-dom';import {signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,updateProfile} from 'firebase/auth';import {auth} from '../firebase/client';import {saveUserProfile} from '../services/userService';import {validEmail,strongPassword} from '../utils/validation';import Brand from '../components/Brand';import {ArrowRight,ShieldCheck} from 'lucide-react';import {firebaseConfigured} from '../config/env';
-export default function AuthPage(){const [mode,setMode]=useState('in'),[form,setForm]=useState({firstName:'',lastName:'',birthDate:'',gender:'',email:'',password:''}),[error,setError]=useState(''),[busy,setBusy]=useState(false);const nav=useNavigate();const change=e=>setForm({...form,[e.target.name]:e.target.value});async function submit(e){e.preventDefault();setError('');if(!firebaseConfigured||!auth){setError('Firebase n’est pas encore configuré. Vérifiez les variables OPEN_DC_FIREBASE_* dans la configuration Vercel.');return;}if(!validEmail(form.email)){setError('Adresse e-mail invalide.');return;}if(mode==='up'&&(!form.firstName.trim()||!form.lastName.trim()||!form.birthDate||!form.gender)){setError('Veuillez compléter tous les champs obligatoires.');return;}if(!strongPassword(form.password)){setError('Le mot de passe doit contenir au moins 8 caractères.');return;}setBusy(true);try{if(mode==='in'){await signInWithEmailAndPassword(auth,form.email,form.password);}else{const cred=await createUserWithEmailAndPassword(auth,form.email,form.password);await updateProfile(cred.user,{displayName:`${form.firstName} ${form.lastName}`});await saveUserProfile(cred.user.uid,{...form,email:form.email,photoURL:''});}nav('/');}catch(err){const map={'auth/email-already-in-use':'Cette adresse e-mail possède déjà un compte.','auth/invalid-credential':'Adresse e-mail ou mot de passe incorrect.','auth/weak-password':'Mot de passe trop faible.','auth/network-request-failed':'Erreur réseau. Vérifiez votre connexion.'};setError(map[err.code]||err.message||'Une erreur est survenue.');}finally{setBusy(false)}}async function reset(){if(!auth||!validEmail(form.email)){setError('Saisissez d’abord une adresse e-mail valide.');return;}try{await sendPasswordResetEmail(auth,form.email);setError('E-mail de réinitialisation envoyé si ce compte existe.');}catch(e){setError(e.message)}}return <div className="auth-page"><div className="auth-visual"><Brand/><div className="auth-visual-copy"><span className="eyebrow">INNOVATION · CONNEXION · AVENIR</span><h1>Ouvrir la RDC<br/>au monde <em>numérique.</em></h1><p>Créer nos propres technologies. Connecter les talents. Transformer les possibilités.</p><div className="visual-orbit">∞</div></div><div className="auth-foot">Une initiative technologique née en République démocratique du Congo.</div></div><div className="auth-side"><div className="auth-box"><Brand small/><span className="eyebrow blue">VOTRE ESPACE OPEN­DC</span><h2>{mode==='in'?'Connexion à OpenDC':'Créer un compte'}</h2><p className="muted">{mode==='in'?'Connectez-vous pour accéder à votre espace.':'Rejoignez la communauté OpenDC.'}</p>{error&&<div className="form-error">{error}</div>}<form onSubmit={submit}>{mode==='up'&&<><div className="form-grid"><label>Nom<input name="lastName" value={form.lastName} onChange={change} required/></label><label>Prénom<input name="firstName" value={form.firstName} onChange={change} required/></label></div><label>Date de naissance<input type="date" name="birthDate" value={form.birthDate} onChange={change} required/></label><label>Genre<select name="gender" value={form.gender} onChange={change} required><option value="">Sélectionner</option><option value="female">Femme</option><option value="male">Homme</option><option value="other">Autre</option><option value="prefer_not_say">Je préfère ne pas préciser</option></select></label></>}<label>Adresse e-mail<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required/></label><label>Mot de passe<input type="password" name="password" value={form.password} onChange={change} autoComplete={mode==='in'?'current-password':'new-password'} minLength="8" required/></label>{mode==='in'&&<button type="button" className="text-button reset" onClick={reset}>Mot de passe oublié ?</button>}<button className="primary-button full" disabled={busy}>{busy?'Veuillez patienter…':mode==='in'?'Sign In':'Créer mon compte'}<ArrowRight size={17}/></button></form><div className="auth-switch">{mode==='in'?"Vous n’avez pas encore de compte ?":"Vous avez déjà un compte ?"} <button onClick={()=>{setMode(mode==='in'?'up':'in');setError('')}}>{mode==='in'?'Sign Up':'Sign In'}</button></div><div className="secure-note"><ShieldCheck size={15}/> Authentification sécurisée par Firebase</div></div></div></div>}
+
+import { useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { authApi } from '../services/api';
+import { validEmail, strongPassword } from '../utils/validation';
+import Brand from '../components/Brand';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+
+export default function AuthPage() {
+  const [search] = useSearchParams();
+  const resetToken = search.get('token') || '';
+  const initialMode = useMemo(() => resetToken ? 'reset' : 'in', [resetToken]);
+  const [mode, setMode] = useState(initialMode);
+  const [form, setForm] = useState({ firstName: '', lastName: '', birthDate: '', gender: '', email: '', password: '', currentPassword: '' });
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [busy, setBusy] = useState(false);
+  const nav = useNavigate();
+  const { refreshSession } = useAuth();
+  const change = e => setForm({ ...form, [e.target.name]: e.target.value });
+  async function resendVerification() { setError(''); setNotice(''); try { const result = await authApi.resendVerification(form.email); setNotice(result.message); } catch (err) { setError(err.message); } }
+  async function submit(e) {
+    e.preventDefault(); setError(''); setNotice('');
+    if (mode !== 'forgot' && mode !== 'reset' && !validEmail(form.email)) { setError('Adresse e-mail invalide.'); return; }
+    if (mode === 'up' && (!form.firstName.trim() || !form.lastName.trim() || !form.birthDate || !form.gender)) { setError('Veuillez compléter tous les champs obligatoires.'); return; }
+    if ((mode === 'up' || mode === 'reset') && !strongPassword(form.password)) { setError('Le mot de passe doit contenir au moins 8 caractères.'); return; }
+    setBusy(true);
+    try {
+      if (mode === 'in') {
+        await authApi.login({ email: form.email, password: form.password });
+        await refreshSession(); nav('/');
+      } else if (mode === 'up') {
+        const result = await authApi.register({ firstName: form.firstName, lastName: form.lastName, birthDate: form.birthDate, gender: form.gender, email: form.email, password: form.password });
+        setNotice(result.message); setMode('in');
+      } else if (mode === 'forgot') {
+        const result = await authApi.forgotPassword(form.email);
+        setNotice(result.message);
+      } else {
+        const result = await authApi.resetPassword(resetToken, form.password);
+        setNotice(result.message); setMode('in');
+        window.history.replaceState({}, '', '/auth');
+      }
+    } catch (err) {
+      const map = {
+        EMAIL_ALREADY_EXISTS: 'Cette adresse e-mail possède déjà un compte.',
+        INVALID_CREDENTIALS: 'Adresse e-mail ou mot de passe incorrect.',
+        EMAIL_NOT_VERIFIED: 'Vérifiez votre adresse e-mail avant de vous connecter.',
+        INVALID_ACTION_TOKEN: 'Ce lien est invalide ou expiré.'
+      };
+      setError(map[err.code] || err.message || 'Une erreur est survenue.');
+    } finally { setBusy(false); }
+  }
+  const title = mode === 'in' ? 'Connexion à OpenDC' : mode === 'up' ? 'Créer un compte' : mode === 'forgot' ? 'Mot de passe oublié' : 'Nouveau mot de passe';
+  return <div className="auth-page">
+    <div className="auth-visual"><Brand/><div className="auth-visual-copy"><span className="eyebrow">INNOVATION · CONNEXION · AVENIR</span><h1>Ouvrir la RDC<br/>au monde <em>numérique.</em></h1><p>Créer nos propres technologies. Connecter les talents. Transformer les possibilités.</p><div className="visual-orbit">∞</div></div><div className="auth-foot">Une initiative technologique née en République démocratique du Congo.</div></div>
+    <div className="auth-side"><div className="auth-box"><Brand small/><span className="eyebrow blue">VOTRE ESPACE OPEN­DC</span><h2>{title}</h2><p className="muted">{mode === 'in' ? 'Connectez-vous pour accéder à votre espace.' : mode === 'up' ? 'Rejoignez la communauté OpenDC.' : mode === 'forgot' ? 'Recevez un lien sécurisé par e-mail.' : 'Choisissez un nouveau mot de passe.'}</p>
+      {error && <div className="form-error">{error}</div>}{notice && <div className="success-message">{notice}</div>}
+      <form onSubmit={submit}>
+        {mode === 'up' && <><div className="form-grid"><label>Nom<input name="lastName" value={form.lastName} onChange={change} required/></label><label>Prénom<input name="firstName" value={form.firstName} onChange={change} required/></label></div><label>Date de naissance<input type="date" name="birthDate" value={form.birthDate} onChange={change} required/></label><label>Genre<select name="gender" value={form.gender} onChange={change} required><option value="">Sélectionner</option><option value="female">Femme</option><option value="male">Homme</option><option value="other">Autre</option><option value="prefer_not_say">Je préfère ne pas préciser</option></select></label></>}
+        {mode !== 'reset' && <label>Adresse e-mail<input type="email" name="email" value={form.email} onChange={change} autoComplete="email" required/></label>}
+        {(mode === 'in' || mode === 'up' || mode === 'reset') && <label>{mode === 'reset' ? 'Nouveau mot de passe' : 'Mot de passe'}<input type="password" name="password" value={form.password} onChange={change} autoComplete={mode === 'in' ? 'current-password' : 'new-password'} minLength="8" required/></label>}
+        <button className="primary-button full" disabled={busy}>{busy ? 'Veuillez patienter…' : mode === 'in' ? 'Sign In' : mode === 'up' ? 'Créer mon compte' : mode === 'forgot' ? 'Envoyer le lien' : 'Réinitialiser'}<ArrowRight size={17}/></button>
+      </form>
+      {mode === 'in' && notice && <button type="button" className="text-button" onClick={resendVerification}>Renvoyer l’e-mail de vérification</button>}
+      <div className="auth-switch">
+        {mode === 'in' ? <>Vous n’avez pas encore de compte ? <button onClick={() => { setMode('up'); setError(''); setNotice(''); }}>Sign Up</button><br/><button onClick={() => { setMode('forgot'); setError(''); setNotice(''); }}>Mot de passe oublié ?</button></> :
+        mode === 'up' || mode === 'forgot' ? <>Vous avez déjà un compte ? <button onClick={() => { setMode('in'); setError(''); setNotice(''); }}>Sign In</button></> :
+        <button onClick={() => { setMode('in'); setError(''); setNotice(''); }}>Retour à la connexion</button>}
+      </div>
+      <div className="secure-note"><ShieldCheck size={15}/> Authentification sécurisée par le serveur OpenDC</div>
+    </div></div>
+  </div>;
+}

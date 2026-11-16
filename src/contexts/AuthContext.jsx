@@ -1,6 +1,32 @@
-import {createContext,useContext,useEffect,useState} from 'react'; import {onAuthStateChanged} from 'firebase/auth'; import {auth,db} from '../firebase/client'; import {doc,getDoc,setDoc,serverTimestamp} from 'firebase/firestore';
-const C=createContext(null); export const useAuth=()=>useContext(C);
-export function AuthProvider({children}){const [user,setUser]=useState(null),[profile,setProfile]=useState(null),[loading,setLoading]=useState(true);
-useEffect(()=>{if(!auth){setLoading(false);return;} return onAuthStateChanged(auth,async u=>{setUser(u); if(u&&db){try{const s=await getDoc(doc(db,'users',u.uid));setProfile(s.exists()?s.data():null);}catch(e){console.error(e);setProfile(null);}}else setProfile(null);setLoading(false);});},[]);
-const refreshProfile=async()=>{if(!user||!db)return null;const s=await getDoc(doc(db,'users',user.uid));const p=s.exists()?s.data():null;setProfile(p);return p;};
-const value={user,profile,loading,refreshProfile,updateLocalProfile:setProfile}; return <C.Provider value={value}>{children}</C.Provider>; }
+
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { authApi, profileApi } from '../services/api';
+const C = createContext(null);
+export const useAuth = () => useContext(C);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const refreshProfile = useCallback(async () => {
+    const data = await profileApi.get();
+    setProfile(data.profile || null);
+    return data.profile || null;
+  }, []);
+  const refreshSession = useCallback(async () => {
+    try {
+      const data = await authApi.me();
+      const next = data.user || null;
+      setUser(next);
+      if (next) {
+        try { await refreshProfile(); } catch { setProfile(next); }
+      } else setProfile(null);
+      return next;
+    } catch (error) {
+      if (error.status !== 401) console.warn('Session OpenDC indisponible:', error);
+      setUser(null); setProfile(null); return null;
+    } finally { setLoading(false); }
+  }, [refreshProfile]);
+  useEffect(() => { refreshSession(); }, [refreshSession]);
+  const value = { user, profile, loading, refreshProfile, refreshSession, updateLocalProfile: setProfile, setUser };
+  return <C.Provider value={value}>{children}</C.Provider>;
+}
