@@ -30,6 +30,11 @@ export async function apiRequest(path, { method = 'GET', body, headers = {} } = 
 export const authApi = {
   register: data => apiRequest('/api/auth/register', { method: 'POST', body: data }),
   login: data => apiRequest('/api/auth/login', { method: 'POST', body: data }),
+  verifyLoginTwoFactor: code => apiRequest('/api/auth/2fa/login', { method: 'POST', body: { code } }),
+  setupTwoFactor: currentPassword => apiRequest('/api/auth/2fa/setup', { method: 'POST', body: { currentPassword } }),
+  confirmTwoFactor: code => apiRequest('/api/auth/2fa/confirm', { method: 'POST', body: { code } }),
+  disableTwoFactor: (currentPassword, code) => apiRequest('/api/auth/2fa/disable', { method: 'POST', body: { currentPassword, code } }),
+  regenerateTwoFactorRecoveryCodes: (currentPassword, code) => apiRequest('/api/auth/2fa/recovery-codes/regenerate', { method: 'POST', body: { currentPassword, code } }),
   logout: () => apiRequest('/api/auth/logout', { method: 'POST' }),
   me: () => apiRequest('/api/auth/me'),
   forgotPassword: email => apiRequest('/api/auth/forgot-password', { method: 'POST', body: { email } }),
