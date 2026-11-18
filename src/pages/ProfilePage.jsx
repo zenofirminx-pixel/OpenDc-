@@ -22,8 +22,16 @@ export default function ProfilePage() {
     try {
       let photoURL = photo;
       if (file) photoURL = await uploadAvatar(user.uid, file);
-      await profileApi.update({ firstName: form.firstName, lastName: form.lastName, birthDate: form.birthDate, gender: form.gender, photoURL });
-      await refreshProfile(); setPhoto(photoURL); setFile(null); setMsg('Votre profil a été mis à jour.');
+      await profileApi.update({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        birthDate: form.birthDate,
+        gender: form.gender
+      });
+      await refreshProfile();
+      setPhoto(photoURL);
+      setFile(null);
+      setMsg('Votre profil a été mis à jour.');
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   }
   async function changePass() {
