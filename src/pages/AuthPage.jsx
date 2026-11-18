@@ -18,6 +18,7 @@ export default function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [twoFactorStep, setTwoFactorStep] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [twoFactorMethod, setTwoFactorMethod] = useState('totp');
   const nav = useNavigate();
   const { refreshSession } = useAuth();
   const change = e => setForm({ ...form, [e.target.name]: e.target.value });
@@ -81,14 +82,16 @@ export default function AuthPage() {
       <form onSubmit={submit}>
         {mode === 'up' && <><div className="form-grid"><label>Nom<input name="lastName" value={form.lastName} onChange={change} required/></label><label>Prénom<input name="firstName" value={form.firstName} onChange={change} required/></label></div><label>Date de naissance<input type="date" name="birthDate" value={form.birthDate} onChange={change} required/></label><label>Genre<select name="gender" value={form.gender} onChange={change} required><option value="">Sélectionner</option><option value="female">Femme</option><option value="male">Homme</option><option value="other">Autre</option><option value="prefer_not_say">Je préfère ne pas préciser</option></select></label></>}
         {mode === 'in' && twoFactorStep ? (
-          <label>Code de vérification
+          <label>{twoFactorMethod === 'totp' ? 'Code de votre application d’authentification' : 'Code de récupération'}
             <input
               type="text"
               name="twoFactorCode"
               value={twoFactorCode}
-              onChange={e => setTwoFactorCode(e.target.value)}
-              placeholder="Code à 6 chiffres ou code de récupération"
-              autoComplete="one-time-code"
+              onChange={e => setTwoFactorCode(twoFactorMethod === 'recovery' ? e.target.value.toUpperCase() : e.target.value)}
+              placeholder={twoFactorMethod === 'totp' ? 'Code à 6 chiffres' : 'XXXXX-XXXXX-XXXXX-XXXXX'}
+              inputMode={twoFactorMethod === 'totp' ? 'numeric' : 'text'}
+              autoComplete={twoFactorMethod === 'totp' ? 'one-time-code' : 'off'}
+              autoCapitalize="characters"
               autoFocus
               required
             />
@@ -101,7 +104,21 @@ export default function AuthPage() {
         )}
         <button className="primary-button full" disabled={busy || (mode === 'in' && twoFactorStep && !twoFactorCode.trim())}>{busy ? 'Veuillez patienter…' : mode === 'in' && twoFactorStep ? 'Vérifier et continuer' : mode === 'in' ? 'Sign In' : mode === 'up' ? 'Créer mon compte' : mode === 'forgot' ? 'Envoyer le lien' : 'Réinitialiser'}<ArrowRight size={17}/></button>
       </form>
-      {mode === 'in' && twoFactorStep && <button type="button" className="text-button" onClick={() => { setTwoFactorStep(false); setTwoFactorCode(''); setError(''); setNotice(''); }}>Retour à la connexion</button>}
+      {mode === 'in' && twoFactorStep && (
+        <button
+          type="button"
+          className="text-button"
+          onClick={() => {
+            setTwoFactorMethod(twoFactorMethod === 'totp' ? 'recovery' : 'totp');
+            setTwoFactorCode('');
+            setError('');
+            setNotice('');
+          }}
+        >
+          {twoFactorMethod === 'totp' ? 'Utiliser un code de récupération' : 'Utiliser mon application d’authentification'}
+        </button>
+      )}
+      {mode === 'in' && twoFactorStep && <button type="button" className="text-button" onClick={() => { setTwoFactorStep(false); setTwoFactorCode(''); setTwoFactorMethod('totp'); setError(''); setNotice(''); }}>Retour à la connexion</button>}
       {mode === 'in' && !twoFactorStep && notice && <button type="button" className="text-button" onClick={resendVerification}>Renvoyer l’e-mail de vérification</button>}
       {!twoFactorStep && <div className="auth-switch">
         {mode === 'in' ? <>Vous n’avez pas encore de compte ? <button onClick={() => { setMode('up'); setError(''); setNotice(''); }}>Sign Up</button><br/><button onClick={() => { setMode('forgot'); setError(''); setNotice(''); }}>Mot de passe oublié ?</button></> :
