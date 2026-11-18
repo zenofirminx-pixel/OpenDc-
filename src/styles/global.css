@@ -22,3 +22,156 @@
 .twofactor-danger:disabled, .twofactor-form button:disabled { opacity: .6; cursor: not-allowed; }
 .recovery-code-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 14px 0; }
 .recovery-code-list code { padding: 10px; text-align: center; border-radius: 7px; background: var(--surface, #f1f5f9); }
+
+/* ===== AFFICHAGE MARKDOWN DE L'ASSISTANT OPENDC ===== */
+
+.chat-row {
+  min-width: 0;
+}
+
+.chat-content {
+  max-width: 82%;
+  min-width: 0;
+  padding: 12px 15px;
+  background: #f0f4fb;
+  border-radius: 4px 13px 13px 13px;
+  color: #33435d;
+  font-size: 13px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.chat-row.user .chat-content {
+  background: #1765ed;
+  color: #fff;
+  border-radius: 13px 4px 13px 13px;
+  white-space: pre-wrap;
+}
+
+.chat-content > :first-child {
+  margin-top: 0;
+}
+
+.chat-content > :last-child {
+  margin-bottom: 0;
+}
+
+.chat-content p {
+  margin: 8px 0;
+  line-height: 1.75;
+}
+
+.chat-content h1,
+.chat-content h2,
+.chat-content h3,
+.chat-content h4 {
+  color: #102c55;
+  font-family: Manrope, sans-serif;
+  line-height: 1.4;
+  margin: 17px 0 9px;
+  font-weight: 800;
+}
+
+.chat-content h1 { font-size: 19px; }
+.chat-content h2 { font-size: 17px; }
+.chat-content h3 { font-size: 15px; }
+.chat-content h4 { font-size: 14px; }
+
+.chat-content ul,
+.chat-content ol {
+  padding-left: 23px;
+  margin: 9px 0;
+}
+
+.chat-content li {
+  margin: 5px 0;
+}
+
+.chat-content a {
+  color: #1765ed;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.chat-content a:hover {
+  color: #0b48b5;
+}
+
+.chat-row.user .chat-content a {
+  color: #fff;
+}
+
+.chat-content blockquote {
+  margin: 12px 0;
+  padding: 9px 13px;
+  border-left: 3px solid #1765ed;
+  background: #e7efff;
+  border-radius: 0 8px 8px 0;
+}
+
+.chat-content code {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #e2eaf7;
+  color: #174b9b;
+  font-family: monospace;
+  font-size: .92em;
+}
+
+.chat-content pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 13px;
+  margin: 12px 0;
+  border-radius: 9px;
+  background: #101d33;
+  color: #e5efff;
+}
+
+.chat-content pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  white-space: pre;
+}
+
+.chat-content table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 12px;
+}
+
+.chat-content th,
+.chat-content td {
+  padding: 8px 10px;
+  border: 1px solid #dce5f2;
+  text-align: left;
+}
+
+.chat-content th {
+  background: #e7efff;
+  color: #173d75;
+  font-weight: 700;
+}
+
+.chat-content hr {
+  border: 0;
+  border-top: 1px solid #dce5f2;
+  margin: 15px 0;
+}
+
+@media (max-width: 700px) {
+  .chat-content {
+    max-width: 88%;
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
+
+/* ===== FIN DU STYLE MARKDOWN ===== */
+
