@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Globe, ShieldCheck, Lock, KeyRound, Copy, RefreshCw } from 'lucide-react';
+import { Globe, ShieldCheck, Lock, KeyRound, Copy, RefreshCw, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { authApi } from '../services/api';
@@ -95,6 +95,34 @@ export default function SettingsPage() {
     } catch {
       setError('Copie impossible. Sélectionnez les codes manuellement.');
     }
+  }
+
+  function downloadCodes() {
+    if (!recoveryCodes.length) return;
+
+    const data = {
+      application: 'OpenDC',
+      type: 'two-factor-recovery-codes',
+      generatedAt: new Date().toISOString(),
+      codes: recoveryCodes
+    };
+
+    const blob = new Blob(
+      [JSON.stringify(data, null, 2)],
+      { type: 'application/json;charset=utf-8' }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = 'opendc-recovery-codes.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setNotice('Fichier JSON téléchargé. Conservez-le dans un endroit sûr.');
   }
 
   return (
@@ -245,9 +273,14 @@ export default function SettingsPage() {
                   <code key={index}>{item}</code>
                 ))}
               </div>
-              <button type="button" className="primary-button" onClick={copyCodes}>
-                <Copy size={16} /> Copier les codes
-              </button>
+              <div className="twofactor-actions">
+                <button type="button" className="primary-button" onClick={copyCodes}>
+                  <Copy size={16} /> Copier les codes
+                </button>
+                <button type="button" className="primary-button" onClick={downloadCodes}>
+                  <Download size={16} /> Télécharger en JSON
+                </button>
+              </div>
             </div>
           )}
         </div>
