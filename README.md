@@ -1,7 +1,7 @@
 
-# Pal — frontend React + Vite
+# OpenDC — frontend React + Vite
 
-Interface React 18 + Vite conservant le design et les pages Pal existantes. L'authentification est maintenant gérée par l'API Node/Express ; le navigateur n'utilise plus Firebase Authentication ni le SDK Firestore.
+Interface React 18 + Vite conservant le design et les pages OpenDC existantes. L'authentification est maintenant gérée par l'API Node/Express ; le navigateur n'utilise plus Firebase Authentication ni le SDK Firestore.
 
 ## Développement
 
@@ -11,7 +11,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Configurer `OPEN_DC_API_BASE_URL` vers l'API Pal et `OPEN_DC_API_ENABLED=true`. En local, le frontend tourne par défaut sur `http://localhost:5173` et le backend sur `http://localhost:3000`.
+Configurer `OPEN_DC_API_BASE_URL` vers l'API OpenDC et `OPEN_DC_API_ENABLED=true`. En local, le frontend tourne par défaut sur `http://localhost:5173` et le backend sur `http://localhost:3000`.
 
 ## Sécurité navigateur
 

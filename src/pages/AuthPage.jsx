@@ -74,10 +74,10 @@ export default function AuthPage() {
       setError(map[err.code] || err.message || 'Une erreur est survenue.');
     } finally { setBusy(false); }
   }
-  const title = mode === 'in' ? 'Connexion à Pal' : mode === 'up' ? 'Créer un compte' : mode === 'forgot' ? 'Mot de passe oublié' : 'Nouveau mot de passe';
+  const title = mode === 'in' ? 'Connexion à OpenDC' : mode === 'up' ? 'Créer un compte' : mode === 'forgot' ? 'Mot de passe oublié' : 'Nouveau mot de passe';
   return <div className="auth-page">
     <div className="auth-visual"><Brand/><div className="auth-visual-copy"><span className="eyebrow">INNOVATION · CONNEXION · AVENIR</span><h1>Ouvrir la RDC<br/>au monde <em>numérique.</em></h1><p>Créer nos propres technologies. Connecter les talents. Transformer les possibilités.</p><div className="visual-orbit">∞</div></div><div className="auth-foot">Une initiative technologique née en République démocratique du Congo.</div></div>
-    <div className="auth-side"><div className="auth-box"><Brand small/><span className="eyebrow blue">VOTRE ESPACE OPEN­DC</span><h2>{title}</h2><p className="muted">{mode === 'in' ? 'Connectez-vous pour accéder à votre espace.' : mode === 'up' ? 'Rejoignez la communauté Pal.' : mode === 'forgot' ? 'Recevez un lien sécurisé par e-mail.' : 'Choisissez un nouveau mot de passe.'}</p>
+    <div className="auth-side"><div className="auth-box"><Brand small/><span className="eyebrow blue">VOTRE ESPACE OPEN­DC</span><h2>{title}</h2><p className="muted">{mode === 'in' ? 'Connectez-vous pour accéder à votre espace.' : mode === 'up' ? 'Rejoignez la communauté OpenDC.' : mode === 'forgot' ? 'Recevez un lien sécurisé par e-mail.' : 'Choisissez un nouveau mot de passe.'}</p>
       {error && <div className="form-error">{error}</div>}{notice && <div className="success-message">{notice}</div>}
       <form onSubmit={submit}>
         {mode === 'up' && <><div className="form-grid"><label>Nom<input name="lastName" value={form.lastName} onChange={change} required/></label><label>Prénom<input name="firstName" value={form.firstName} onChange={change} required/></label></div><label>Date de naissance<input type="date" name="birthDate" value={form.birthDate} onChange={change} required/></label><label>Genre<select name="gender" value={form.gender} onChange={change} required><option value="">Sélectionner</option><option value="female">Femme</option><option value="male">Homme</option><option value="other">Autre</option><option value="prefer_not_say">Je préfère ne pas préciser</option></select></label></>}
@@ -125,7 +125,7 @@ export default function AuthPage() {
         mode === 'up' || mode === 'forgot' ? <>Vous avez déjà un compte ? <button onClick={() => { setMode('in'); setError(''); setNotice(''); }}>Sign In</button></> :
         <button onClick={() => { setMode('in'); setError(''); setNotice(''); }}>Retour à la connexion</button>}
       </div>}
-      <div className="secure-note"><ShieldCheck size={15}/> Authentification sécurisée par le serveur Pal</div>
+      <div className="secure-note"><ShieldCheck size={15}/> Authentification sécurisée par le serveur OpenDC</div>
     </div></div>
   </div>;
 }
