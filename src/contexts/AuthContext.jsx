@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
       } else setProfile(null);
       return next;
     } catch (error) {
-      if (error.status !== 401) console.warn('Session OpenDC indisponible:', error);
+      if (error.status !== 401) console.warn('Session Pal indisponible:', error);
       setUser(null); setProfile(null); return null;
     } finally { setLoading(false); }
   }, [refreshProfile]);

@@ -101,7 +101,7 @@ export default function SettingsPage() {
     if (!recoveryCodes.length) return;
 
     const data = {
-      application: 'OpenDC',
+      application: 'Pal',
       type: 'two-factor-recovery-codes',
       generatedAt: new Date().toISOString(),
       codes: recoveryCodes
@@ -116,7 +116,7 @@ export default function SettingsPage() {
     const link = document.createElement('a');
 
     link.href = url;
-    link.download = 'opendc-recovery-codes.json';
+    link.download = 'pal-recovery-codes.json';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -130,7 +130,7 @@ export default function SettingsPage() {
       <div className="page-title">
         <span className="eyebrow blue">PRÉFÉRENCES</span>
         <h1>Paramètres</h1>
-        <p>Personnalisez votre expérience OpenDC.</p>
+        <p>Personnalisez votre expérience Pal.</p>
       </div>
 
       <section className="settings-card">
@@ -291,7 +291,7 @@ export default function SettingsPage() {
         <div>
           <h3>Sécurité du compte</h3>
           <p>
-            OpenDC utilise des sessions serveur sécurisées. Les mots de passe
+            Pal utilise des sessions serveur sécurisées. Les mots de passe
             sont hachés avec Argon2id et ne sont jamais enregistrés en clair
             dans Firestore.
           </p>

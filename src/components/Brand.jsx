@@ -1,1 +1,5 @@
-import {Infinity as InfinityIcon} from 'lucide-react'; export default function Brand({small=false}){return <div className={`brand ${small?'brand-small':''}`}><span className="brand-mark"><InfinityIcon/></span><span>Open<span>DC</span></span></div>}
+export default function Brand({ small = false }) {
+  return <div className={`brand ${small ? 'brand-small' : ''}`} aria-label="Pal">
+    <span className="brand-word">PAL</span><span className="brand-smile" />
+  </div>;
+}

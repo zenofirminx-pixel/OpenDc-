@@ -11,7 +11,7 @@ async function getCsrfToken() {
   return csrfToken;
 }
 export async function apiRequest(path, { method = 'GET', body, headers = {} } = {}) {
-  if (!config.apiEnabled) throw new Error('Le backend OpenDC n’est pas activé.');
+  if (!config.apiEnabled) throw new Error('Le backend Pal n’est pas activé.');
   const options = { method, credentials: 'include', headers: { Accept: 'application/json', ...headers } };
   if (body instanceof FormData) options.body = body;
   else if (body !== undefined) { options.headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(body); }
